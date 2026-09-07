@@ -1,12 +1,5 @@
 """
 AI Study Pack Generator - Workflow Orchestration
-
-Five-stage workflow:
-1. Planning
-2. Content Generation
-3. Assessment
-4. Review
-5. Refinement
 """
 
 from prompts import (
@@ -33,9 +26,9 @@ def content_stage(topic, level, plan):
     return generate_json(prompt)
 
 
-def assessment_stage(topic, level, content):
+def assessment_stage(topic, level, content, quiz_count=6):
     prompt = ASSESSMENT_PROMPT.format(
-        topic=topic, level=level, content=content
+        topic=topic, level=level, content=content, quiz_count=quiz_count
     )
     return generate_json(prompt)
 
@@ -57,11 +50,11 @@ def refinement_stage(plan, content, assessment, review):
     return generate_json(prompt)
 
 
-def run_study_workflow(topic, level, goal, duration):
+def run_study_workflow(topic, level, goal, duration, quiz_count=6):
     """Run the complete multi-stage study-pack workflow."""
     plan = planning_stage(topic, level, goal, duration)
     content = content_stage(topic, level, plan)
-    assessment = assessment_stage(topic, level, content)
+    assessment = assessment_stage(topic, level, content, quiz_count=quiz_count)
     review = review_stage(plan, content, assessment)
 
     approved = bool(review.get("approved", False))
