@@ -62,10 +62,6 @@ if generate:
         # Progress Bar and Status Message Holders
         progress_bar = st.progress(0)
         status_box = st.empty()
-        spinner_box = st.empty()
-
-        with spinner_box.container():
-            st.info("🔄 Running the AI workflow...")
 
         # Stage 1: Planning
         status_box.info("Stage 1/5: Planning in progress...")
@@ -75,7 +71,7 @@ if generate:
         
         status_box.info("Stage 1/5: Planning completed")
         progress_bar.progress(20)
-        time.sleep(0.5)
+        time.sleep(0.4)
 
         # Stage 2: Content
         status_box.info("Stage 2/5: Content Generation in progress...")
@@ -85,7 +81,7 @@ if generate:
         
         status_box.info("Stage 2/5: Content Generation completed")
         progress_bar.progress(40)
-        time.sleep(0.5)
+        time.sleep(0.4)
 
         # Stage 3: Assessment / Quiz
         status_box.info("Stage 3/5: Assessment & Quiz generation in progress...")
@@ -100,7 +96,7 @@ if generate:
         
         status_box.info("Stage 3/5: Assessment completed")
         progress_bar.progress(60)
-        time.sleep(0.5)
+        time.sleep(0.4)
 
         # Stage 4: Review
         status_box.info("Stage 4/5: Quality Reviewing...")
@@ -110,7 +106,7 @@ if generate:
         
         status_box.info("Stage 4/5: Review completed")
         progress_bar.progress(80)
-        time.sleep(0.5)
+        time.sleep(0.4)
 
         # Stage 5: Refinement
         approved = bool(review.get("approved", False))
@@ -125,10 +121,12 @@ if generate:
             is_refined = False
 
         progress_bar.progress(100)
-        status_box.success("✅ Stage 5/5: Workflow completed successfully!")
-        spinner_box.empty()
-
-        st.divider()
+        status_box.success("✅ Workflow completed successfully!")
+        time.sleep(1)
+        
+        # Clear status box & progress bar for clean layout
+        status_box.empty()
+        progress_bar.empty()
 
         # --- DISPLAY RESULTS ---
         st.subheader("🔎 AI Quality Review")
@@ -137,6 +135,8 @@ if generate:
             st.metric("Quality Score", f'{review.get("quality_score", 0)}/100')
         with col2:
             st.metric("Refined", "Yes" if is_refined else "No")
+
+        st.divider()
 
         if "Study Plan" in sections and plan:
             st.subheader("📌 Study Plan")
@@ -154,6 +154,16 @@ if generate:
                         for point in section["key_points"]:
                             st.write(f"• {point}")
 
+        if "Flashcards" in sections and content.get("key_terms"):
+            st.subheader("🎴 Flashcards")
+            cols = st.columns(2)
+            for i, term in enumerate(content["key_terms"]):
+                with cols[i % 2]:
+                    if isinstance(term, dict):
+                        st.info(f"**{term.get('term', '')}**\n\n{term.get('definition', '')}")
+                    else:
+                        st.info(f"• {term}")
+
         if "Quiz" in sections and assessment:
             st.subheader("📝 Assessment & Quiz")
             st.markdown("### Multiple Choice Questions")
@@ -164,6 +174,10 @@ if generate:
                 with st.expander("Show answer"):
                     st.write(f"**Answer:** {q.get('answer', '')}")
                     st.write(q.get("explanation", ""))
+
+        if "Exam Tips" in sections and content.get("summary"):
+            st.subheader("💡 Exam Tips & Summary")
+            st.success(content["summary"])
 
     except Exception as e:
         st.error(f"Unable to generate the study pack: {e}")
