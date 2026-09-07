@@ -109,16 +109,19 @@ if generate:
         time.sleep(0.4)
 
         # Stage 5: Refinement
+        # Trigger refinement if quality score is under 70 or not approved
+        quality_score = review.get("quality_score", 0)
         approved = bool(review.get("approved", False))
-        if not approved:
-            status_box.info("Stage 5/5: Refining study pack...")
-            progress_bar.progress(90)
-            refined = refinement_stage(plan, content, assessment, review)
-            content = refined.get("content", content)
-            assessment = refined.get("assessment", assessment)
-            is_refined = True
-        else:
-            is_refined = False
+
+        if not approved or quality_score < 70:
+          status_box.info("Stage 5/5: Refining study pack...")
+          progress_bar.progress(90)
+          refined = refinement_stage(plan, content, assessment, review)
+          content = refined.get("content", content)
+          assessment = refined.get("assessment", assessment)
+          is_refined = True
+       else:
+           is_refined = False
 
         progress_bar.progress(100)
         status_box.success("✅ Workflow completed successfully!")
