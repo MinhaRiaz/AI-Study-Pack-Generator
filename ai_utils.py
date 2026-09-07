@@ -1,53 +1,52 @@
-"""Gemini API helper functions with automatic retry logic."""
+"""Groq API helper functions with automatic retry logic."""
 
 import json
 import os
 import time
-from google import genai
-from google.genai.errors import APIError
+from groq import Groq
 
 
 def get_client():
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         try:
             import streamlit as st
-            api_key = st.secrets["GEMINI_API_KEY"]
+            api_key = st.secrets["GROQ_API_KEY"]
         except Exception:
             api_key = None
 
     if not api_key:
         raise RuntimeError(
-            "GEMINI_API_KEY is missing. Add it to Streamlit Secrets."
+            "GROQ_API_KEY is missing. Add it to Streamlit Secrets."
         )
 
-    return genai.Client(api_key=api_key)
+    return Groq(api_key=api_key)
 
 
-def generate_json(prompt, model="gemini-3.8-flash", max_retries=3):
-    """Generate JSON content with built-in retry handling for 503/429 errors."""
+def generate_json(prompt, model="openai/gpt-oss-120b", max_retries=3):
+    """Generate JSON content using Groq's high-speed API."""
     client = get_client()
 
     for attempt in range(max_retries):
         try:
-            response = client.models.generate_content(
+            response = client.chat.completions.create(
                 model=model,
-                contents=prompt,
-                config={
-                    "response_mime_type": "application/json",
-                    "temperature": 0.4,
-                },
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant that outputs strictly valid JSON.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.4,
             )
 
-            text = response.text.strip()
+            text = response.choices[0].message.content.strip()
             return json.loads(text)
 
-        except APIError as e:
-            # Check for 503 (Unavailable) or 429 (Rate Limit Exceeded)
-            if e.code in (503, 429) and attempt < max_retries - 1:
-                wait_time = (attempt + 1) * 3  # Wait 3s, then 6s, etc.
-                time.sleep(wait_time)
+        except Exception as e:
+            if attempt < max_retries - 1:
+                time.sleep((attempt + 1) * 2)
                 continue
-            raise e
-        except json.JSONDecodeError as exc:
-            raise RuntimeError("The AI returned an invalid JSON response.") from exc
+            raise RuntimeError(f"Groq API Error: {e}") from e
