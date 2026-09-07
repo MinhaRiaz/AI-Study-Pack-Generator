@@ -43,7 +43,12 @@ Return ONLY valid JSON with:
       "example": ""
     }}
   ],
-  "key_terms": [],
+  "key_terms": [
+    {{
+      "term": "",
+      "definition": ""
+    }}
+  ],
   "summary": ""
 }}
 """
