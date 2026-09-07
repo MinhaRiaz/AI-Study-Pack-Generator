@@ -22,7 +22,7 @@ def get_client():
     return genai.Client(api_key=api_key)
 
 
-def generate_json(prompt, model="gemini-2.5-flash"):
+def generate_json(prompt, model="gemini-3.6-flash"):
     client = get_client()
 
     response = client.models.generate_content(
