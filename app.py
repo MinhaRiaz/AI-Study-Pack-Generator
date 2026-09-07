@@ -134,12 +134,8 @@ if generate:
         progress_bar.empty()
 
         # --- DISPLAY RESULTS ---
-        st.subheader("🔎 AI Quality Review")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Quality Score", f'{review.get("quality_score", 0)}/100')
-        with col2:
-            st.metric("Refined", "Yes" if is_refined else "No")
+        st.subheader("🔎 Study Pack Details")
+        st.metric("Refined", "Yes" if is_refined else "No")
 
         st.divider()
 
