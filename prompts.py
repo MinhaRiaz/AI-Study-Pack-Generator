@@ -11,13 +11,13 @@ Study goal: {goal}
 Available study duration: {duration}
 
 Return ONLY valid JSON with:
-{
+{{
   "learning_objectives": [],
   "topics": [],
   "time_allocation": [],
   "difficulty": "",
   "strategy": ""
-}
+}}
 """
 
 CONTENT_PROMPT = """
@@ -32,20 +32,20 @@ Study plan:
 {plan}
 
 Return ONLY valid JSON with:
-{
+{{
   "title": "",
   "overview": "",
   "sections": [
-    {
+    {{
       "heading": "",
       "explanation": "",
       "key_points": [],
       "example": ""
-    }
+    }}
   ],
   "key_terms": [],
   "summary": ""
-}
+}}
 """
 
 ASSESSMENT_PROMPT = """
@@ -60,29 +60,29 @@ Study content:
 {content}
 
 Return ONLY valid JSON with:
-{
+{{
   "mcqs": [
-    {
+    {{
       "question": "",
       "options": ["", "", "", ""],
       "answer": "",
       "explanation": ""
-    }
+    }}
   ],
   "short_questions": [
-    {
+    {{
       "question": "",
       "answer": ""
-    }
+    }}
   ],
   "true_false": [
-    {
+    {{
       "statement": "",
       "answer": "",
       "explanation": ""
-    }
+    }}
   ]
-}
+}}
 
 Create 5 MCQs, 3 short questions, and 3 true/false questions.
 """
@@ -108,13 +108,13 @@ Assessment:
 {assessment}
 
 Return ONLY valid JSON:
-{
+{{
   "approved": true,
   "quality_score": 0,
   "strengths": [],
   "issues": [],
   "recommendations": []
-}
+}}
 
 Set approved to true only if the material is sufficiently accurate,
 complete, clear, and appropriate.
@@ -139,18 +139,18 @@ Review:
 {review}
 
 Return ONLY valid JSON:
-{
-  "content": {
+{{
+  "content": {{
     "title": "",
     "overview": "",
     "sections": [],
     "key_terms": [],
     "summary": ""
-  },
-  "assessment": {
+  }},
+  "assessment": {{
     "mcqs": [],
     "short_questions": [],
     "true_false": []
-  }
-}
+  }}
+}}
 """
