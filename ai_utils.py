@@ -1,8 +1,10 @@
-"""Gemini API helper functions."""
+"""Gemini API helper functions with automatic retry logic."""
 
 import json
 import os
+import time
 from google import genai
+from google.genai.errors import APIError
 
 
 def get_client():
@@ -22,22 +24,30 @@ def get_client():
     return genai.Client(api_key=api_key)
 
 
-def generate_json(prompt, model="gemini-3.6-flash"):
+def generate_json(prompt, model="gemini-3.8-flash", max_retries=3):
+    """Generate JSON content with built-in retry handling for 503/429 errors."""
     client = get_client()
 
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config={
-            "response_mime_type": "application/json",
-            "temperature": 0.4,
-        },
-    )
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "temperature": 0.4,
+                },
+            )
 
-    text = response.text.strip()
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(
-            "The AI returned an invalid JSON response."
-        ) from exc
+            text = response.text.strip()
+            return json.loads(text)
+
+        except APIError as e:
+            # Check for 503 (Unavailable) or 429 (Rate Limit Exceeded)
+            if e.code in (503, 429) and attempt < max_retries - 1:
+                wait_time = (attempt + 1) * 3  # Wait 3s, then 6s, etc.
+                time.sleep(wait_time)
+                continue
+            raise e
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("The AI returned an invalid JSON response.") from exc
