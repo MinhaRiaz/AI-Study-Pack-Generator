@@ -69,22 +69,11 @@ Return ONLY valid JSON with:
       "explanation": ""
     }}
   ],
-  "short_questions": [
-    {{
-      "question": "",
-      "answer": ""
-    }}
-  ],
-  "true_false": [
-    {{
-      "statement": "",
-      "answer": "",
-      "explanation": ""
-    }}
-  ]
+  "short_questions": [],
+  "true_false": []
 }}
 
-Create 5 MCQs, 3 short questions, and 3 true/false questions.
+Create exactly {quiz_count} MCQs.
 """
 
 REVIEW_PROMPT = """
